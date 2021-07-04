@@ -1,3 +1,12 @@
+# Telgram env setup
+export BOT_MSG_URL="https://api.telegram.org/bot"$bot_api"/sendMessage"
+
+tg_post_msg() {
+ curl -s -X POST "$BOT_MSG_URL" -d chat_id="@D4rkKnight21_ci" \
+ -d "parse_mode=html" \
+ -d text="$1"
+}
+
 #!/bin/bash
 #
 # Install Extra Packages
@@ -9,7 +18,7 @@ sudo curl https://raw.githubusercontent.com/fabianonline/telegram.sh/master/tele
 sudo chmod a+x /home/builder/bin/telegram
 
 # Fix TimeZone
-sudo ln -snf /usr/share/zoneinfo/Asia/Dhaka /etc/localtime
+sudo ln -snf /usr/share/zoneinfo/Asia/Jakarta /etc/localtime
 
 # Setup Configs
 mkdir -p ~/.config/rclone
@@ -17,16 +26,16 @@ echo "$rclone_config" > ~/.config/rclone/rclone.conf
 echo "$tg_auth" > ~/.telegram.sh
 
 # Notify In telegram
-telegram -M "*DERPFEST ROM Compile Status*: \`TRIGGERED!\`.
+tg_post_msg -M "*CAF-EXTENDED ROM Compile Status*: \`TRIGGERED!\`.
 *Triggered at*:- \`$(date)\`."
 
 # Pull CCache
 cd $CCACHE_DIR
-rclone copy remote:/ccache/derpcache $CCACHE_DIR -P
-tar -I "zstd -1 -T2" -xf derpcache
-rm derpcache
+rclone copy up:/ccache/cafexcache $CCACHE_DIR -P
+tar -I "zstd -1 -T2" -xf cafexcache
+rm cafexcache
 
 # Push CCache
 sleep 100m
-tar -I "zstd -1 -T2" -cf derpcache *
-rclone copy derpcache remote:/ccache/ -P
+tar -I "zstd -1 -T2" -cf cafexcache *
+rclone copy cafexcache up:/ccache/ -P

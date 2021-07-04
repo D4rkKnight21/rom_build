@@ -1,32 +1,31 @@
+# Telgram env setup
+export BOT_MSG_URL="https://api.telegram.org/bot"$bot_api"/sendMessage"
+
+tg_post_msg() {
+ curl -s -X POST "$BOT_MSG_URL" -d chat_id="@D4rkKnight21_ci" \
+ -d "parse_mode=html" \
+ -d text="$1"
+}
+
 #!/bin/bash
 #
 cd $HOME
 build_time=$(cat ~/.build_time)
-build_name=$(ls $HOME/out/target/product/daisy/ | grep -m1 -E 'daisy|.zip')
-ZIP=$(find $(pwd)/out/target/product/daisy/ -maxdepth 1 -name "*daisy*.zip" | perl -e 'print sort { length($b) <=> length($a) } <>' | head -n 1)
+build_name=$(ls $HOME/out/target/product/platina/ | grep -m1 -E 'platina|.zip')
+ZIP=$(find $(pwd)/out/target/product/platina/ -maxdepth 1 -name "*platina*.zip" | perl -e 'print sort { length($b) <=> length($a) } <>' | head -n 1)
 ZIPNAME=$(basename ${ZIP})
 ZIPSIZE=$(du -sh ${ZIP} |  awk '{print $1}')
 
 
 # Push Compiled ROM if available
-if [ -f $HOME/out/target/product/daisy/${build_name} ]; then
+if [ -f $HOME/out/target/product/platina/${build_name} ]; then
 
-rclone copy $HOME/out/target/product/daisy/$build_name remote:/noob/ps/ -P
-rclone copy $HOME/out/target/product/daisy/${ZIPNAME} remote:/noob/ps/ -P
+rclone copy $HOME/out/target/product/platina/$build_name up:/platina -P
+rclone copy $HOME/out/target/product/platina/${ZIPNAME} up:/platina -P
 
-telegram -M "*Project Sakura Compile Status*: \`FINISHED!\`
+tg_post_msg -M "*$build_name*: \`FINISHED!\`
 *Finished at*:- \`$(date)\`.
 *Compile Time*: \`$((build_time / 3600)) hour(s), $((build_time % 3600 / 60)) minute(s) and $((build_time % 60)) seconds\`.
-*Download Link*: [$build_name](https://noob-buildbot.zunayeddihan.workers.dev/0:/ps/$build_name)
+*Download Link*: [$build_name](https://drive.D4rkKnight21.workers.dev/0:/ps/$build_name)
 *CCache Stats*:-
 \`$(ccache -s | sed -n -e "6,9 p" -e "9 q")\`"
-
-else
-
-telegram -M "*Project Sakura Compile Status*: \`FAILED!\`
-*Failed at*:- \`$(date)\`.
-*Compile Time*: \`$((build_time / 3600)) hour(s), $((build_time % 3600 / 60)) minute(s) and $((build_time % 60)) seconds\`.
-*CCache Stats*:-
-\`$(ccache -s | sed -n -e "6,9 p" -e "9 q")\`"
-
-fi

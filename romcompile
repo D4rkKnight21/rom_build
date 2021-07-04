@@ -1,8 +1,17 @@
+# Telgram env setup
+export BOT_MSG_URL="https://api.telegram.org/bot"$bot_api"/sendMessage"
+
+tg_post_msg() {
+ curl -s -X POST "$BOT_MSG_URL" -d chat_id="@D4rkKnight21_ci" \
+ -d "parse_mode=html" \
+ -d text="$1"
+}
+
 #!/bin/bash
 cd $HOME
 
 # Notify In telegram
-telegram -M "*DERPFEST ROM Compile Status*: \`STARTED!\`.
+tg_post_msg -M "*CAF-EXTENDED Compile Status*: \`STARTED!\`.
 *Started at*:- \`$(date)\`."
 
 # Setup CCache
@@ -13,9 +22,9 @@ ccache -z
 build_start=$(date +"%s")
 #
 #
-source build/envsetup.sh
-lunch derp_daisy-user
-mka derp -j8
+. build/envsetup.sh
+lunch cafex_platina-userdebug
+m cafex -j8
 #
 #
 build_end=$(date +"%s")
